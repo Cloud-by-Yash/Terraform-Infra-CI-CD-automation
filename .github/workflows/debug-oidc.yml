@@ -1,0 +1,12 @@
+name: Debug OIDC Claims
+on: workflow_dispatch
+permissions:
+  id-token: write
+  contents: read
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: github/actions-oidc-debugger@main
+        with:
+          audience: sts.amazonaws.com
