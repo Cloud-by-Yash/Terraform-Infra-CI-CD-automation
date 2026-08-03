@@ -7,3 +7,4 @@ node_modules/
 *.tfstate
 *.tfstate.*
 
+k8s/secret.yaml
