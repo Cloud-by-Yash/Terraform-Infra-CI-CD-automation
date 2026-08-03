@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: journey-frontend
+  namespace: journey-ns
+  labels:
+    app: journey-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: journey-frontend
+  template:
+    metadata:
+      labels:
+        app: journey-frontend
+    spec:
+      containers:
+      - name: frontend-app
+        image: 277328279179.dkr.ecr.us-east-1.amazonaws.com/journey-frontend
+        ports:
+        - containerPort: 80 
+        
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 10
