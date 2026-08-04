@@ -24,6 +24,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: journey-backend-svc
+            name: jerney-backend
             port:
               number: 5000

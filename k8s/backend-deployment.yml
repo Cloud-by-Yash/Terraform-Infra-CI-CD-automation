@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: backend-api
-        image:  277328279179.dkr.ecr.us-east-1.amazonaws.com/journey-backend
+        image: 277328279179.dkr.ecr.us-east-1.amazonaws.com/journey-backend
         ports:
         - containerPort: 5000 
         
@@ -61,13 +61,13 @@ spec:
         
         livenessProbe:
           httpGet:
-            path: /health
+            path: /api/health
             port: 5000
           initialDelaySeconds: 15
           periodSeconds: 20
         readinessProbe:
           httpGet:
-            path: /health
+            path: /api/health
             port: 5000
-          initialDelaySeconds: 5
+          initialDelaySeconds: 10
           periodSeconds: 10
