@@ -15,7 +15,21 @@ module "eks" {
   enable_cluster_creator_admin_permissions = true
 
  
-  
+  access_entries = {
+    app_deployment_runner = {
+      kubernetes_groups = []
+      principal_arn     = "arn:aws:iam::277328279179:role/App-deployment-role"
+
+      policy_associations = {
+        admin = {
+          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+          access_scope = {
+            type = "cluster"
+          }
+        }
+      }
+    }
+  }
 
   cluster_compute_config = {
     enabled    = true
@@ -26,4 +40,3 @@ module "eks" {
     cluster = "jerney-project"
   }
 }
-
