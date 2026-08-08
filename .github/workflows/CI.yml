@@ -8,6 +8,9 @@ on:
       - 'terraform/**'
       - '*.md' 
       
+permissions:
+  contents: read
+
 jobs:
   
   secret-scan:
@@ -79,7 +82,7 @@ jobs:
         run: docker build -t local-frontend:test ./frontend
 
       - name: Trivy Container Image Scan
-        uses: aquasecurity/trivy-action@v0.28.0  
+        uses: aquasecurity/trivy-action@v0.35.0
         with:
           image-ref: 'local-frontend:test'
           format: 'table'
@@ -114,7 +117,7 @@ jobs:
         run: docker build -t local-backend:test ./backend
 
       - name: Trivy Container Image Scan
-        uses: aquasecurity/trivy-action@v0.28.0  
+        uses: aquasecurity/trivy-action@v0.35.0
         with:
           image-ref: 'local-backend:test'
           format: 'table'

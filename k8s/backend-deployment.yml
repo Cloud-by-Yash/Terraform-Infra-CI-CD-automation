@@ -5,7 +5,6 @@ metadata:
   namespace: journey-ns
   labels:
     app: journey-backend
-
 spec:
   replicas: 2
   selector:
@@ -16,13 +15,28 @@ spec:
       labels:
         app: journey-backend
     spec:
+      serviceAccountName: journey-backend
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
       containers:
       - name: backend-api
-        image: 277328279179.dkr.ecr.us-east-1.amazonaws.com/journey-backend
+        image: 277328279179.dkr.ecr.us-east-1.amazonaws.com/journey-backend:v1.0.0
+        imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 5000 
-        
-        
+        - containerPort: 5000
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 1000
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
         env:
         - name: DB_USER
           valueFrom:
@@ -49,7 +63,6 @@ spec:
             secretKeyRef:
               name: rds-secret
               key: DB_NAME
-        
         resources:
           requests:
             cpu: "250m"
@@ -57,8 +70,6 @@ spec:
           limits:
             cpu: "500m"
             memory: "1Gi"
-
-        
         livenessProbe:
           httpGet:
             path: /api/health

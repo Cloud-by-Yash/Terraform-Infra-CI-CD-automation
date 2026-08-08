@@ -1,9 +1,8 @@
-name: 'Terraform CI/CD'
-
 on:
-
+  pull_request:
+    paths:
+      - 'terraform/**'
   workflow_dispatch:
-
   
 
 permissions:

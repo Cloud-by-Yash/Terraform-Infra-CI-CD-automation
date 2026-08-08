@@ -1,3 +1,5 @@
+# checkov:skip=CKV_DOCKER_2:Handled by Kubernetes probes instead
+
 # ---- Build stage ----
 FROM node:20-alpine AS build
 WORKDIR /app
