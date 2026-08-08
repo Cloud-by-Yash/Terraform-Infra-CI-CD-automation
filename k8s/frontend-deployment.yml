@@ -15,14 +15,28 @@ spec:
       labels:
         app: journey-frontend
     spec:
+      serviceAccountName: journey-frontend
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
       containers:
       - name: frontend-app
-        image: 277328279179.dkr.ecr.us-east-1.amazonaws.com/journey-frontend
+        image: 277328279179.dkr.ecr.us-east-1.amazonaws.com/journey-frontend:v1.0.0
+        imagePullPolicy: IfNotPresent
         securityContext:
-          runAsUser: 0
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 1000
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
         ports:
-          - containerPort: 80
-        
+        - containerPort: 80
         resources:
           requests:
             cpu: "250m"
@@ -30,7 +44,6 @@ spec:
           limits:
             cpu: "500m"
             memory: "512Mi"
-
         livenessProbe:
           httpGet:
             path: /

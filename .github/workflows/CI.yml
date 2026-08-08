@@ -1,0 +1,126 @@
+name: Continuous Integration & DevSecOps Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - 'terraform/**'
+      - '*.md' 
+      
+permissions:
+  contents: read
+
+jobs:
+  
+  secret-scan:
+    name: Secret Detection (Gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  
+  sast-scan:
+    name: Source Code Security (Semgrep)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Install and Run Semgrep
+        run: |
+          python3 -m pip install semgrep
+          semgrep scan --config p/ci
+
+ 
+  iac-scan:
+    name: K8s & Terraform Security (Checkov)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Run Checkov Scanner
+        uses: bridgecrewio/checkov-action@v3  
+        with:
+          directory: .
+          framework: kubernetes,terraform
+          soft_fail: false
+
+ 
+  frontend-ci:
+    name: Frontend Quality & Trivy Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: './frontend/package-lock.json'
+
+      - name: Install Frontend Dependencies
+        run: npm ci
+        working-directory: ./frontend
+
+      - name: Run Frontend Linter 
+        run: npm run lint
+        working-directory: ./frontend
+
+      - name: Test Docker Build Locally
+        run: docker build -t local-frontend:test ./frontend
+
+      - name: Trivy Container Image Scan
+        uses: aquasecurity/trivy-action@v0.35.0
+        with:
+          image-ref: 'local-frontend:test'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          severity: 'CRITICAL'
+
+  
+  backend-ci:
+    name: Backend Quality & Trivy Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: './backend/package-lock.json'
+
+      - name: Install Backend Dependencies
+        run: npm ci
+        working-directory: ./backend
+
+      - name: Run Backend Linter
+        run: npm run lint
+        working-directory: ./backend
+
+      - name: Test Docker Build Locally
+        run: docker build -t local-backend:test ./backend
+
+      - name: Trivy Container Image Scan
+        uses: aquasecurity/trivy-action@v0.35.0
+        with:
+          image-ref: 'local-backend:test'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          severity: 'CRITICAL'
