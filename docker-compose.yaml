@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:16-alpine
+    image: ghcr.io/infrastructure-as-code/postgres:16-alpine
     container_name: jerney-db
     restart: unless-stopped
     environment:
